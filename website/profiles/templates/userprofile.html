@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class='row'>
+        <div class='col-xs-4 col-md-4'>
+            <h3>User ID: {{ user.username}}<h3>
+        </div>
+    </div>
+    <div class='row'>
+        <div class='col-xs-4 col-md-4'>
+            <form method="POST" action=""> {% csrf_token %}
+                <!-- {{ form.as_p }} -->
+                {{ userForm|crispy }}
+                {{ userProfileForm|crispy }}
+                <input type="submit" value="Save Changes" class="btn btn-default">
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class='row'>
+        <div class='col-xs-4 col-md-4'>
+            <h2>This is Contact Us H2</h2>
+            <h1> {{ title }}</h1>
+            {% if confirm_message %}
+                {{ confirm_message }}
+            {% endif %}
+            {% if form %}
+            <!-- view -  ContactUsFormCrispy - Not Working -->
+            <!-- <form id=”id-ContactUsFormCrispy” action="/submit" method="post"> -->
+            <form method="POST" action="">
+                {% csrf_token %}
+                <!-- {{ form.as_p }} -->
+                {{ form|crispy }}
+                <input type="submit" value="Submit Form" class="btn btn-primary">
+            </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

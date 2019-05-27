@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.contrib.auth.forms import UserCreationForm
+#Use Customer User Model, therefore disable django UserCreationForm
+#from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -7,14 +8,15 @@ from django.views.generic import DetailView
 from django.views.generic.edit import CreateView
 
 from .models import RestaurantReview, Restaurant, Dish
-from .forms import RestaurantForm, DishForm
+from .forms import UserAdminCreationForm, RestaurantForm, DishForm
 
 # rest_framework
 from rest_framework import viewsets, authentication, permissions
 from .serializers import RestaurantSerializer
 
+
 class SignUp(CreateView):
-    form_class = UserCreationForm
+    form_class = UserAdminCreationForm
     success_url = reverse_lazy('login')
     template_name = 'app02/signup.html'
 

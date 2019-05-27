@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
+os.environ["MYSQL_DATABASE"] = 'w0002'
+os.environ["MYSQL_USER"] = 'root'
+os.environ["MYSQL_PASSWORD"] = 'qa123'
+os.environ["MYSQL_HOST"] = 'localhost'
+os.environ["MYSQL_PORT"] = '3306'
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,9 +30,12 @@ SECRET_KEY = 'jnow__zc^@ah0f)2xjgf!rbc0&fm-7r0*te=yrw-#s9d_t^!ph'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+if os.environ.get('DJANGO_USE_DEBUG'):
+    DEBUG = True
 
 ALLOWED_HOSTS = []
-
+if os.environ.get('SITE_HOST'):
+    ALLOWED_HOSTS.append(os.environ.get('SITE_HOST'))
 
 # Application definition
 
@@ -79,16 +88,73 @@ WSGI_APPLICATION = 'w0002.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'w0002',
-        'USER': 'root',
-        'PASSWORD': 'qa123',
-        'HOST': 'localhost',
-        'PORT': '3306',
+if os.environ.get('MYSQL_HOST'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('MYSQL_DATABASE'),
+            'USER': os.environ.get('MYSQL_USER'),
+            'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
+            'HOST': os.environ.get('MYSQL_HOST'),
+            'PORT': os.environ.get('MYSQL_PORT'),
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
+
+LOGGING = {
+    'version': 1,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'app.log'),
+            'formatter': 'simple'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     }
 }
+
+if DEBUG:
+    # make all loggers use the console.
+    for logger in LOGGING['loggers']:
+        LOGGING['loggers'][logger]['handlers'] = ['console']
+
+
+AUTH_USER_MODEL = 'app02.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -122,6 +188,9 @@ USE_L10N = True
 
 USE_TZ = True
 
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
@@ -135,3 +204,4 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+

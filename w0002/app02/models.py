@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+from django.core.mail import EmailMessage
 from datetime import date
 
 
@@ -17,7 +18,7 @@ class UserManager(BaseUserManager):
     def _create_user(self, email, password, **extra_fields):
         """Create and save a User with the given email and password."""
         if not email:
-            raise ValueError('The given email must be set')
+            raise ValueError(_('Users must have an email address'))
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
@@ -36,9 +37,9 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
 
         if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
+            raise ValueError(_('Superuser must have is_staff=True.'))
         if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
+            raise ValueError(_('Superuser must have is_superuser=True.'))
 
         return self._create_user(email, password, **extra_fields)
 
@@ -53,6 +54,22 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     objects = UserManager()
+
+    def __str__(self):
+        return self.email
+
+    def get_full_name(self):
+        return self.email
+
+    def get_short_name(self):
+        return self.email
+
+    def email_user(self, subject, message, from_email=None):
+        """
+        Sends an email to this User.
+        """
+        email = EmailMessage(subject, message, from_email, [self.email])
+        email.send()
 
 
 class Restaurant(models.Model):

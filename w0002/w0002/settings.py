@@ -10,6 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
+"""
+2019-05-27
+Duplicate email can register
+check_token error - once user activate his account , system give error and account not activated
+"""
+
 import os
 
 os.environ["MYSQL_DATABASE"] = 'w0002'
